@@ -1,0 +1,44 @@
+version: "3.9"
+services:
+    backend:
+        build: ./backend
+        container_name: node_js_app
+        # build:
+        #     context: ./backend
+        #     dockerfile: Dockerfile
+        #     args: 
+        #        val: 1
+        ports:
+            - '80:80'
+        volumes:
+            - logs:/app/logs
+            - ./backend:/app # bind mount for local dev
+            - /app/node_modules
+        env_file:
+            - ./backend/backend.env
+        depends_on:
+            - mongodb
+    frontend:
+        build: ./frontend
+        container_name: react_js_app
+        ports:
+            - '3000:3000'
+        volumes:
+            - ./frontend/src:/app/src
+        stdin_open: true # interactive mode
+        tty: true
+        depends_on:
+            - backend
+    mongodb:
+        image: 'mongo'
+        container_name: mongodb
+        volumes:
+            - data:/data/db
+        # envoirment:
+        #     MONGO_INITDB_ROOT_USERNAME: 'prashant'
+        #     MONGO_INITDB_ROOT_PASSWORD: 'secret'
+        env_file:
+            - ./backend/.mongo.env
+volumes:
+    data:
+    logs:
